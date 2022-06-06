@@ -4,7 +4,7 @@ metadata:
 projects:
   - name: SignalRChat
     source:
-      location: 'https://github.com/rhsgsa/SignalRChat.git'
+      location: 'https://github.com/kahlai/SignalRChat.git'
       type: git
       branch: main
 components:
