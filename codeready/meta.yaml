@@ -21,8 +21,8 @@ spec:
       cpuRequest: 30m
       cpuLimit: 500m
   extensions:
-    - https://github.com/redhat-developer/omnisharp-theia-plugin/releases/download/v0.0.7/omnisharp_theia_plugin.theia
-    - https://github.com/redhat-developer/netcoredbg-theia-plugin/releases/download/v0.0.4/netcoredbg_theia_plugin.theia
+    # - https://github.com/redhat-developer/omnisharp-theia-plugin/releases/download/v0.0.7/omnisharp_theia_plugin.theia
+    # - https://github.com/redhat-developer/netcoredbg-theia-plugin/releases/download/v0.0.4/netcoredbg_theia_plugin.theia
     # - https://raw.githubusercontent.com/kahlai/SignalRChat/master/codeready/ms-dotnettools.csharp-1.25.0@linux-x64.vsix
-    - http://example-openshift-workspaces.apps.cluster-xdhnx.xdhnx.sandbox309.opentlc.com/csharp.vsix
+    - http://example-openshift-workspaces.apps.cluster-xdhnx.xdhnx.sandbox309.opentlc.com/csharp125.vsix
 #    - relative:extension/resources/github_com/redhat-developer/netcoredbg-theia-plugin/releases/download/v0_0_3/netcoredbg_theia_plugin.theia
