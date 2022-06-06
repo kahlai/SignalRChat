@@ -8,7 +8,7 @@ projects:
       type: git
       branch: main
 components:
-  - alias: ansible-plugin
+  - alias: homemade-plugin
     type: chePlugin
     reference: https://raw.githubusercontent.com/kahlai/SignalRChat/master/codeready/meta.yaml
 
