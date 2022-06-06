@@ -8,14 +8,18 @@ projects:
       type: git
       branch: main
 components:
-  - id: redhat-developer/che-omnisharp-plugin/latest
-    memoryLimit: 1024Mi
+  - alias: ansible-plugin
     type: chePlugin
-    alias: omnisharp
-  - id: redhat-developer/netcoredbg-theia-plugin/latest
-    memoryLimit: 512Mi
-    type: chePlugin
-    alias: netcoredbg
+    reference: https://raw.githubusercontent.com/kahlai/SignalRChat/master/codeready/meta.yaml
+
+  # - id: redhat-developer/che-omnisharp-plugin/latest
+  #   memoryLimit: 1024Mi
+  #   type: chePlugin
+  #   alias: omnisharp
+  # - id: redhat-developer/netcoredbg-theia-plugin/latest
+  #   memoryLimit: 512Mi
+  #   type: chePlugin
+  #   alias: netcoredbg
   - mountSources: true
     endpoints:
       - name: web-endpoint
