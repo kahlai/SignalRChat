@@ -1,71 +1,60 @@
-apiVersion: 1.0.0
+schemaVersion: 2.1.0
 metadata:
-  name: dotnet-demo-signalr-chat
+  name: signalrchat
 projects:
-  - name: SignalRChat
-    source:
-      location: 'https://github.com/kahlai/SignalRChat.git'
-      type: git
-      branch: main
+  - git:
+      remotes:
+        origin: 'https://github.com/kahlai/SignalRChat.git'
+    name: signalrchat
 components:
-  - alias: homemade-plugin
-    type: chePlugin
-    reference: https://raw.githubusercontent.com/kahlai/SignalRChat/master/codeready/meta.yaml
+  - name: tools
+    container:
+      image: quay.io/kahlai/dotnet-devspaces-ws:latest
+      memoryLimit: 3Gi
+      endpoints:
+        - exposure: public
+          name: api1
+          protocol: http
+          targetPort: 5000
+        - exposure: public
+          name: api2
+          protocol: http
+          targetPort: 3000
+      volumeMounts:
+        - name: nuget
+          path: /home/user/.nuget
+        - name: dotnet
+          path: /home/user/.dotnet
 
-  # - id: redhat-developer/che-omnisharp-plugin/latest
-  #   memoryLimit: 1024Mi
-  #   type: chePlugin
-  #   alias: omnisharp
-  # - id: redhat-developer/netcoredbg-theia-plugin/latest
-  #   memoryLimit: 512Mi
-  #   type: chePlugin
-  #   alias: netcoredbg
-  - mountSources: true
-    endpoints:
-      - name: web-endpoint
-        port: 5000
-    memoryLimit: 512Mi
-    type: dockerimage
-    volumes:
-      - name: nuget
-        containerPath: /home/jboss/.nuget
-    alias: dotnet
-    image: 'registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8@sha256:5107465c45e0cb15655ab35cc7297efe6fd43d8c1d8d337f785fb9e315257da2'
+  - name: nuget
+    volume:
+      size: 1G
+
+  - name: dotnet
+    volume:
+      size: 1G
+
 commands:
-  - name: 3. Run
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/SignalRChat'
-        type: exec
-        command: dotnet run
-        component: dotnet
-  - name: 1. Update dependencies
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/SignalRChat'
-        type: exec
-        command: dotnet restore
-        component: dotnet
-  - name: 2. Build
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/SignalRChat'
-        type: exec
-        command: dotnet build
-        component: dotnet
-  - name: Launch .net web application in debug mode
-    actions:
-      - referenceContent: |
-          {
-            "version": "0.2.0",
-              "configurations": [
-                 {
-                    "type": "netcoredbg",
-                    "request": "launch",
-                    "program": "/projects/SignalRChat/bin/Debug/net5.0/SignalRChat.dll",
-                    "args": [],
-                    "name": ".NET Core Launch (console)",
-                    "stopAtEntry": true,
-                    "preLaunchTask": "2. Build",
-                    "console": "internalConsole"
-                  }
-              ]
-          }
-        type: vscode-launch
+  - id: install-cake
+    exec:
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: dotnet tool install -g Cake.Tool
+      group:
+        kind: build
+
+  - id: build
+    exec:
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: dotnet run -p build/build.csproj
+      group:
+        kind: build
+
+  - id: run-server
+    exec:
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: dotnet run --project src/Conduit/Conduit.csproj
+      group:
+        kind: run
