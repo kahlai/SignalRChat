@@ -9,7 +9,7 @@ projects:
 components:
   - name: tools
     container:
-      image: quay.io/kahlai/dotnet-devspaces-ws:6.0
+      image: quay.io/kahlai/udi-rhel8:latest
       memoryLimit: 2Gi
       mountSources: true
       endpoints:
