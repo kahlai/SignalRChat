@@ -1,71 +1,101 @@
-apiVersion: 1.0.0
+schemaVersion: 2.2.0
 metadata:
-  name: dotnet-demo-signalr-chat
-projects:
-  - name: SignalRChat
-    source:
-      location: 'https://github.com/kahlai/SignalRChat.git'
-      type: git
-      branch: main
+  name: dotnet-signalr
+  displayName: SignalR .NET
+  version: 1.1.1
+  icon: https://github.com/dotnet/brand/raw/main/logo/dotnet-logo.png
+  provider: Red Hat
+  supportUrl: https://github.com/devfile-samples/devfile-support#support-information
+  language: .NET
+  projectType: dotnet
+  tags:
+    - .NET
+  attributes:
+    alpha.dockerimage-port: 8080
+starterProjects:
+  - name: signalrchat
+    git:
+      checkoutFrom:
+        remote: origin
+        revision: main
+      remotes:
+        origin: https://github.com/kahlai/SignalRChat
+    subDir: app
 components:
-  - alias: homemade-plugin
-    type: chePlugin
-    reference: https://raw.githubusercontent.com/kahlai/SignalRChat/master/codeready/meta.yaml
-
-  # - id: redhat-developer/che-omnisharp-plugin/latest
-  #   memoryLimit: 1024Mi
-  #   type: chePlugin
-  #   alias: omnisharp
-  # - id: redhat-developer/netcoredbg-theia-plugin/latest
-  #   memoryLimit: 512Mi
-  #   type: chePlugin
-  #   alias: netcoredbg
-  - mountSources: true
-    endpoints:
-      - name: web-endpoint
-        port: 5000
-    memoryLimit: 512Mi
-    type: dockerimage
-    volumes:
-      - name: nuget
-        containerPath: /home/jboss/.nuget
-    alias: dotnet
-    image: 'registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8@sha256:5107465c45e0cb15655ab35cc7297efe6fd43d8c1d8d337f785fb9e315257da2'
+  - name: dotnet
+    container:
+      image: registry.access.redhat.com/ubi8/dotnet-60:6.0
+      command: ['tail', '-f', '/dev/null']
+      mountSources: true
+      env:
+        - name: CONFIGURATION
+          value: Debug
+        - name: STARTUP_PROJECT
+          value: app.csproj
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+      endpoints:
+        - name: http-8080
+          targetPort: 8080
+  - name: image-build
+    image:
+      imageName: 'dotnet-image:latest'
+      dockerfile:
+        uri: docker/Dockerfile
+        buildContext: .
+        rootRequired: false
+  - name: kubernetes-deploy
+    attributes:
+      deployment/replicas: 1
+      deployment/cpuRequest: 10m
+      deployment/memoryRequest: 100Mi
+      deployment/container-port: 8081
+    kubernetes:
+      uri: kubernetes/deployment.yaml
+      endpoints:
+        - name: http-8080
+          targetPort: 8080
+          path: /
+  - name: kubernetes-service
+    attributes:
+      deployment/replicas: 1
+      deployment/cpuRequest: 10m
+      deployment/memoryRequest: 100Mi
+      deployment/container-port: 8080
+    kubernetes:
+      uri: kubernetes/service.yaml
 commands:
-  - name: 3. Run
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/SignalRChat'
-        type: exec
-        command: dotnet run
-        component: dotnet
-  - name: 1. Update dependencies
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/SignalRChat'
-        type: exec
-        command: dotnet restore
-        component: dotnet
-  - name: 2. Build
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/SignalRChat'
-        type: exec
-        command: dotnet build
-        component: dotnet
-  - name: Launch .net web application in debug mode
-    actions:
-      - referenceContent: |
-          {
-            "version": "0.2.0",
-              "configurations": [
-                 {
-                    "type": "netcoredbg",
-                    "request": "launch",
-                    "program": "/projects/SignalRChat/bin/Debug/net5.0/SignalRChat.dll",
-                    "args": [],
-                    "name": ".NET Core Launch (console)",
-                    "stopAtEntry": true,
-                    "preLaunchTask": "2. Build",
-                    "console": "internalConsole"
-                  }
-              ]
-          }
-        type: vscode-launch
+  - id: build
+    exec:
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: kill $(pidof dotnet); dotnet build -c $CONFIGURATION $STARTUP_PROJECT /p:UseSharedCompilation=false
+      component: dotnet
+      group:
+        isDefault: true
+        kind: build
+  - id: run
+    exec:
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: dotnet run -c $CONFIGURATION --no-build --project $STARTUP_PROJECT --no-launch-profile
+      component: dotnet
+      group:
+        isDefault: true
+        kind: run
+  - id: build-image
+    apply:
+      component: image-build
+  - id: deploy-deployment
+    apply:
+      component: kubernetes-deploy
+  - id: deploy-service
+    apply:
+      component: kubernetes-service
+  - id: deploy
+    composite:
+      commands:
+        - build-image
+        - deploy-deployment
+        - deploy-service
+      group:
+        isDefault: true
+        kind: deploy
