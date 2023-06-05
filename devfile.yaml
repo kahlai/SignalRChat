@@ -11,7 +11,7 @@ metadata:
   tags:
     - .NET
   attributes:
-    alpha.dockerimage-port: 8080
+    alpha.dockerimage-port: 8081
 starterProjects:
   - name: signalrchat
     git:
@@ -53,15 +53,15 @@ components:
     kubernetes:
       uri: kubernetes/deployment.yaml
       endpoints:
-        - name: http-8080
-          targetPort: 8080
+        - name: http-8081
+          targetPort: 8081
           path: /
   - name: kubernetes-service
     attributes:
       deployment/replicas: 1
       deployment/cpuRequest: 10m
       deployment/memoryRequest: 100Mi
-      deployment/container-port: 8080
+      deployment/container-port: 8081
     kubernetes:
       uri: kubernetes/service.yaml
 commands:
