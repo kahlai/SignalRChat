@@ -12,15 +12,15 @@ metadata:
     - .NET
   attributes:
     alpha.dockerimage-port: 8081
-starterProjects:
-  - name: signalrchat
-    git:
-      checkoutFrom:
-        remote: origin
-        revision: main
-      remotes:
-        origin: https://github.com/kahlai/SignalRChat
-    subDir: app
+# starterProjects:
+#   - name: signalrchat
+#     git:
+#       checkoutFrom:
+#         remote: origin
+#         revision: main
+#       remotes:
+#         origin: https://github.com/kahlai/SignalRChat
+#     subDir: app
 components:
   - name: tools
     container:
