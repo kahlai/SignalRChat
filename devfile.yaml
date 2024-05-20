@@ -25,7 +25,7 @@ components:
   - name: tools
     container:
       #image: registry.redhat.io/devspaces/udi-rhel8:3.13
-      image: quay.io/kahlai/dotnet-devspaces-ws:8.0.6
+      image: quay.io/kahlai/dotnet-devspaces-ws:6.0
       memoryLimit: '2Gi'
       memoryRequest: '1Gi'
       cpuLimit: '1'
